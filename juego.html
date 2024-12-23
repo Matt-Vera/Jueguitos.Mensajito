@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jueguito</title>
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Baloo+2&display=swap" rel="stylesheet">
+  <style>
+    /* General */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle, #8EC5FC, #E0C3FC);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: #333;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: 'Baloo 2', cursive;
+      color: #ffffff;
+      font-size: 2.2rem;
+      text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+      margin-bottom: 10px;
+    }
+
+    #score {
+      font-size: 1.2rem;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 8px 20px;
+      border-radius: 20px;
+      color: #6c5ce7;
+      margin-bottom: 10px;
+    }
+
+    canvas {
+      background: radial-gradient(circle, #2c3e50, #34495e);
+      border: 4px solid #6c5ce7;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    #controls {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 60px 60px 60px;
+      grid-gap: 8px;
+      justify-content: center;
+    }
+
+    .control-btn {
+      background: linear-gradient(135deg, #6c5ce7, #8e44ad);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    .modal h2 {
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+      color: #6c5ce7;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 Snake 🎮</h1>
+  <div id="score">Puntos: 0</div>
+  <canvas id="snakeGame" width="400" height="400"></canvas>
+
+  <!-- Panel de control -->
+  <div id="controls">
+    <div class="empty"></div>
+    <button class="control-btn" onclick="changeDirection('UP')">↑</button>
+    <div class="empty"></div>
+    <button class="control-btn" onclick="changeDirection('LEFT')">←</button>
+    <div class="empty"></div>
+    <button class="control-btn" onclick="changeDirection('RIGHT')">→</button>
+    <div class="empty"></div>
+    <button class="control-btn" onclick="changeDirection('DOWN')">↓</button>
+    <div class="empty"></div>
+  </div>
+
+  <!-- Modal al perder -->
+  <div class="modal" id="gameOverModal">
+    <h2>¡Juego terminado! 😢</h2>
+    <p id="finalScore"></p>
+    <button class="btn" onclick="window.location.href='index.html'">Salir</button>
+    <button class="btn" onclick="reintentar()">Reintentar</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("snakeGame");
+    const ctx = canvas.getContext("2d");
+    const modal = document.getElementById("gameOverModal");
+    const scoreDisplay = document.getElementById("score");
+    const finalScore = document.getElementById("finalScore");
+    const box = 20;
+
+    let snake = [{ x: 9 * box, y: 10 * box }];
+    let food = { x: Math.floor(Math.random() * 20) * box, y: Math.floor(Math.random() * 20) * box };
+    let direction = "RIGHT";
+    let gameInterval;
+    let score = 0;
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+      if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+      if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+      if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+    });
+
+    function changeDirection(newDirection) {
+      if (newDirection === "UP" && direction !== "DOWN") direction = "UP";
+      if (newDirection === "DOWN" && direction !== "UP") direction = "DOWN";
+      if (newDirection === "LEFT" && direction !== "RIGHT") direction = "LEFT";
+      if (newDirection === "RIGHT" && direction !== "LEFT") direction = "RIGHT";
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Dibujar comida divertida
+      const foodImage = new Image();
+      foodImage.src = "https://cdn-icons-png.flaticon.com/512/1046/1046784.png"; // Candy icon
+      ctx.drawImage(foodImage, food.x, food.y, box, box);
+
+      // Dibujar serpiente con apariencia realista
+      snake.forEach((segment, i) => {
+        ctx.fillStyle = i === 0 ? "#228B22" : "#32CD32"; // Cabeza verde oscuro, cuerpo más claro
+        ctx.beginPath();
+        ctx.arc(segment.x + box / 2, segment.y + box / 2, box / 2, 0, 2 * Math.PI); // Dibujar círculos para un look más realista
+        ctx.fill();
+        ctx.strokeStyle = "#006400"; // Bordes verde oscuro
+        ctx.stroke();
+      });
+
+      let headX = snake[0].x;
+      let headY = snake[0].y;
+
+      if (direction === "UP") headY -= box;
+      if (direction === "DOWN") headY += box;
+      if (direction === "LEFT") headX -= box;
+      if (direction === "RIGHT") headX += box;
+
+      if (headX === food.x && headY === food.y) {
+        food = { x: Math.floor(Math.random() * 20) * box, y: Math.floor(Math.random() * 20) * box };
+        score++;
+        scoreDisplay.textContent = `Puntos: ${score}`;
+      } else {
+        snake.pop();
+      }
+
+      const newHead = { x: headX, y: headY };
+
+      if (
+        headX < 0 || headY < 0 || headX >= canvas.width || headY >= canvas.height ||
+        snake.some(segment => segment.x === headX && segment.y === headY)
+      ) {
+        clearInterval(gameInterval);
+        gameOver();
+        return;
+      }
+
+      snake.unshift(newHead);
+    }
+
+    function gameOver() {
+      finalScore.textContent = `Tu puntaje final es: ${score}`;
+      modal.style.display = "block";
+    }
+
+    function reintentar() {
+      window.location.reload();
+    }
+
+    gameInterval = setInterval(draw, 150);
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

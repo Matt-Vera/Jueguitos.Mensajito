@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mensajito</title>
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Baloo+2&display=swap" rel="stylesheet">
+  <style>
+    /* General */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #8EC5FC 0%, #E0C3FC 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+
+    /* Nebulosa */
+    .nebula {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(140, 82, 255, 0.4), rgba(82, 140, 255, 0.3));
+      transform: translate(-50%, -50%) scale(1);
+      animation: nebulaMove 15s infinite;
+      pointer-events: none;
+      opacity: 0.8;
+      z-index: -1;
+    }
+
+    @keyframes nebulaMove {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+      }
+    }
+
+    /* Contenedor del mensaje */
+    .container {
+      text-align: center;
+      max-width: 700px;
+      padding: 50px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 2.5em;
+      color: #6c5ce7;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1.5em;
+      color: #555;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #fff;
+      border: none;
+      padding: 15px 35px;
+      border-radius: 50px;
+      font-size: 1.2em;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- Nebulosa -->
+  <div class="nebula"></div>
+
+  <!-- Contenido principal -->
+  <div class="container">
+    <h1>🌟 Mensajito 🌟</h1>
+    <p id="motivationalMessage"></p>
+    <button class="btn" onclick="goBack()">Volver</button>
+    <button class="btn" onclick="goToGame()">Lista de Juegitos</button>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    const messages = [
+      "¡Confía en ti mism@ puedes con todo! 💪",
+      "Cada día es una nueva oportunidad para ser feliz 😊",
+      "Sonríe, porque hoy puede ser un gran día 😄",
+      "¡Eres más fuerte de lo que imaginas! 💜"
+    ];
+
+    function getRandomMessage() {
+      const randomIndex = Math.floor(Math.random() * messages.length);
+      return messages[randomIndex];
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+
+    function goToGame() {
+      // Crear la nueva página para la selección de juegos
+      const newWindow = window.open("", "_blank");
+      newWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Selecciona un Juego</title>
+          <style>
+            body {
+              font-family: 'Poppins', sans-serif;
+              background: linear-gradient(135deg, #8EC5FC, #E0C3FC);
+              height: 100vh;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              color: #333;
+              margin: 0;
+            }
+
+            h1 {
+              font-size: 2.5rem;
+              color: #6c5ce7;
+              margin-bottom: 20px;
+            }
+
+            .btn {
+              background: linear-gradient(135deg, #ff9a9e, #fecfef);
+              color: #fff;
+              border: none;
+              padding: 15px 35px;
+              border-radius: 50px;
+              font-size: 1.2rem;
+              font-weight: bold;
+              cursor: pointer;
+              margin: 10px;
+              transition: all 0.3s ease;
+            }
+
+            .btn:hover {
+              transform: scale(1.1);
+              box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Selecciona un Juego</h1>
+          <button class="btn" onclick="location.href='juego.html'">Juego de la Serpiente</button>
+          <button class="btn" onclick="location.href='tetris.html'">Tetris</button>
+        </body>
+        </html>
+      `);
+    }
+
+    // Set a random motivational message on page load
+    document.getElementById("motivationalMessage").textContent = getRandomMessage();
+  </script>
+</body>
+</html>
